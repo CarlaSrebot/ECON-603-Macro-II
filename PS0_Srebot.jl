@@ -7,6 +7,7 @@
 using Distributions, Random, StatsBase, StatsPlots, DataFrames
 Random.seed!(101)
 
+
 # Question 1 - Tauchen's method #
 #################################
 
@@ -61,8 +62,10 @@ end
 Random.seed!(101)
 
 per = 1000
+# N = 3, N = 10
 N = 3
 
+# ρ = 0.2,  ρ = 0.7, ρ = 0.9 and ρ = 0.98
 ρ = 0.2
 σ = 0.4
 
@@ -118,10 +121,12 @@ N = 3
 
 ## Summary Statistics
 print("\n\n ORIGINAL ", "ρ= ", ρ, " N=", N, "\n")
-print(describe(y_original))
+print(summarystats(y_original), "st_dev:        ", std(y_original))
+
 print("\n\n TAUCHEN ", "ρ= ", ρ, " N=", N, "\n")
-describe(y_tauchen)
+print(summarystats(y_tauchen), "st_dev:        ", std(y_tauchen))
+
 print("\n\n ROUWENHORST ", "ρ= ", ρ, " N=", N, "\n")
-describe(y_rouwenhorst)
+print(summarystats(y_rouwenhorst), "st_dev:        ", std(y_rouwenhorst))
 
 
