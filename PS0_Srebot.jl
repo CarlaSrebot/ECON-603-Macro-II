@@ -6,6 +6,7 @@
 using Distributions, Random, StatsBase
 Random.seed!(101)
 
+
 # Question 1 - Tauchen's method 
 
 ## Defining Tauchen's function
@@ -34,12 +35,8 @@ function tauchen(N::Integer, ρ::Real, σ::Real, m::Integer=3)
     return (Π, y_bar)
 end
 
-a = tauchen(N,ρ,σ)
-print(a[1])
-
 
 # Question 2 - Rouwenhorst's method 
-
 function rouwenhorst(p::Real, q::Real, ψ::Real, n::Integer)
     if n == 2
         return [-ψ, ψ],  [p 1-p; 1-q q]
@@ -52,26 +49,21 @@ function rouwenhorst(p::Real, q::Real, ψ::Real, n::Integer)
 
         θN[2:end-1, :] ./= 2
 
-        return collect(range(-ψ, stop=ψ, length=n)), θN
+        return (θN, collect(range(-ψ, stop=ψ, length=n)))
     end
 end
-
-p = (1+ρ)/2
-q = (1+ρ)/2
-ψ = sqrt(((N-1)*σ^2)/(1-ρ^2))
-
-b = rouwenhorst(p, q, ψ, N)
-
-
 
 
 # Question 3
 per = 1000
 N = 3
+
 ρ = 0.2
 σ = 0.4
+
+
 ## Tauchen's method 
-    t1 = tauchen(3,0.2,0.4)
+    t1 = tauchen(N,ρ,σ)
 
     # random initial value from y_var
     y_tauchen = zeros(per)
@@ -87,3 +79,27 @@ N = 3
     end 
 
     print(y_tauchen)
+
+
+## Rouwenhorst's method 
+    p = (1+ρ)/2
+    q = (1+ρ)/2
+    ψ = sqrt(((N-1)*σ^2)/(1-ρ^2))
+    
+    r1 = rouwenhorst(p, q, ψ, N)
+    
+    # random initial value from y_var
+    y_rouwenhorst = zeros(per)
+    y_rouwenhorst_init = rand(r1[2])
+    idx_rouwenhorst_init = findall(x->x == y_rouwenhorst_init, r1[2])
+
+    # defining Markov process
+    y_rouwenhorst[1] = sample(r1[2], Weights(vec(r1[1][idx_rouwenhorst_init, :])))
+
+    for col = 2:per
+        idx = findall(x->x == y_rouwenhorst[col-1],r1[2])
+        y_rouwenhorst[col] = sample(r1[2], Weights(vec(r1[1][idx, :])))
+    end 
+
+    print(y_rouwenhorst)
+    
