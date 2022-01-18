@@ -127,7 +127,7 @@ print("\n\nTAUCHEN ", "ρ= ", ρ, " N=", N, "\n")
 print(summarystats(y_tauchen), "st_dev:         ", std(y_tauchen), "\nAutocor:        ", cor(y_tauchen[2:1:per], lag(y_tauchen)[2:1:per]))
 
 print("\n\nROUWENHORST ", "ρ= ", ρ, " N=", N, "\n")
-print(summarystats(y_rouwenhorst), "st_dev:         ", std(y_rouwenhorst), "\nAutocor:        ", cor(y_tauchen[2:1:per], lag(y_rouwenhorst)[2:1:per]))
+print(summarystats(y_rouwenhorst), "st_dev:         ", std(y_rouwenhorst), "\nAutocor:        ", cor(y_rouwenhorst[2:1:per], lag(y_rouwenhorst)[2:1:per]))
 
 
 
