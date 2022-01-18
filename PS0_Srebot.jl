@@ -80,8 +80,7 @@ N = 3
         y_original[col] =  ρ*y_original[col-1] + ϵ[col]
     end 
 
-
-    ## Tauchen's method 
+## Tauchen's method 
     t1 = tauchen(N,ρ,σ)
 
     # random initial value from y_var
@@ -118,8 +117,11 @@ N = 3
     end 
 
 ## Summary Statistics
-describe(y_original)
+print("\n\n ORIGINAL ", "ρ= ", ρ, " N=", N, "\n")
+print(describe(y_original))
+print("\n\n TAUCHEN ", "ρ= ", ρ, " N=", N, "\n")
 describe(y_tauchen)
+print("\n\n ROUWENHORST ", "ρ= ", ρ, " N=", N, "\n")
 describe(y_rouwenhorst)
 
 
