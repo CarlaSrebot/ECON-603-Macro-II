@@ -3,19 +3,20 @@
 
       Carla Srebot
 ========================#
+using Distributions, Random, StatsBase
+Random.seed!(101)
 
 # Question 1 - Tauchen's method 
-using Distributions
 
 ## Defining Tauchen's function
-function tauchen(N::Integer, ρ::T1, σ::T2, m::Integer=3) where {T1 <: Real, T2 <: Real}
+function tauchen(N::Integer, ρ::Real, σ::Real, m::Integer=3) 
     # Get discretized space
     a_bar = m * sqrt(σ^2 / (1 - ρ^2))
-    y_bar = range(-a_bar, stop=a_bar, length=N)
+    y_bar = collect(range(-a_bar, stop=a_bar, length=N))
     w = y_bar[2] - y_bar[1]
 
     # Get transition probabilities
-    Π = zeros(promote_type(T1, T2), N, N)
+    Π = zeros(N, N)
     for row = 1:N
         # Do end points first
         Π[row, 1] = cdf.(Normal(), (y_bar[1] - ρ*y_bar[row] + w/2) / σ)
@@ -30,18 +31,59 @@ function tauchen(N::Integer, ρ::T1, σ::T2, m::Integer=3) where {T1 <: Real, T2
     # renormalize the transition matrix: 
     Π = Π./sum(Π, dims = 2)
 
-    # random initial value from y_var
-    y = zeros(N)
-    y_init = rand(y_bar)
-    idx = findall(x->x == y_init,y_bar)
-    
-    prob_j = Π[idx, :]
-
-    return prob_j
+    return (Π, y_bar)
 end
 
-a = tauchen(4,0.2,0.4)
+a = tauchen(N,ρ,σ)
+print(a[1])
+
+
+# Question 2 - Rouwenhorst's method 
+
+function rouwenhorst(p::Real, q::Real, ψ::Real, n::Integer)
+    if n == 2
+        return [-ψ, ψ],  [p 1-p; 1-q q]
+    else
+        _, θ_nm1 = _rouwenhorst(p, q, ψ, n-1)
+        θN = p    *[θ_nm1 zeros(n-1, 1); zeros(1, n)] +
+             (1-p)*[zeros(n-1, 1) θ_nm1; zeros(1, n)] +
+             q    *[zeros(1, n); zeros(n-1, 1) θ_nm1] +
+             (1-q)*[zeros(1, n); θ_nm1 zeros(n-1, 1)]
+
+        θN[2:end-1, :] ./= 2
+
+        return collect(range(-ψ, stop=ψ, length=n)), θN
+    end
+end
+
+p = (1+ρ)/2
+q = (1+ρ)/2
+ψ = sqrt(((N-1)*σ^2)/(1-ρ^2))
+
+b = rouwenhorst(p, q, ψ, N)
 
 
 
-# Question 2
+
+# Question 3
+per = 1000
+N = 3
+ρ = 0.2
+σ = 0.4
+## Tauchen's method 
+    t1 = tauchen(3,0.2,0.4)
+
+    # random initial value from y_var
+    y_tauchen = zeros(per)
+    y_tauchen_init = rand(t1[2])
+    idx_tauchen_init = findall(x->x == y_tauchen_init,t1[2])
+
+    # defining Markov process
+    y_tauchen[1] = sample(t1[2], Weights(vec(t1[1][idx_tauchen_init, :])))
+
+    for col = 2:per
+        idx = findall(x->x == y_tauchen[col-1],t1[2])
+        y_tauchen[col] = sample(t1[2], Weights(vec(t1[1][idx, :])))
+    end 
+
+    print(y_tauchen)
