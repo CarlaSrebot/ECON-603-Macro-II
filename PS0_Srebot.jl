@@ -4,7 +4,7 @@
       Carla Srebot
 ========================#
 
-using Distributions, Random, StatsBase, StatsPlots, DataFrames
+using Distributions, Random, StatsBase, StatsPlots, DataFrames, ShiftedArrays
 Random.seed!(101)
 
 
@@ -120,13 +120,14 @@ N = 3
     end 
 
 ## Summary Statistics
-print("\n\n ORIGINAL ", "ρ= ", ρ, " N=", N, "\n")
-print(summarystats(y_original), "st_dev:        ", std(y_original))
+print("\n\nORIGINAL ", "ρ= ", ρ, " N=", N, "\n")
+print(summarystats(y_original), "st_dev:         ", std(y_original), "\nAutocor:        ", cor(y_original[2:1:per], lag(y_original)[2:1:per]))
 
-print("\n\n TAUCHEN ", "ρ= ", ρ, " N=", N, "\n")
-print(summarystats(y_tauchen), "st_dev:        ", std(y_tauchen))
+print("\n\nTAUCHEN ", "ρ= ", ρ, " N=", N, "\n")
+print(summarystats(y_tauchen), "st_dev:         ", std(y_tauchen), "\nAutocor:        ", cor(y_tauchen[2:1:per], lag(y_tauchen)[2:1:per]))
 
-print("\n\n ROUWENHORST ", "ρ= ", ρ, " N=", N, "\n")
-print(summarystats(y_rouwenhorst), "st_dev:        ", std(y_rouwenhorst))
+print("\n\nROUWENHORST ", "ρ= ", ρ, " N=", N, "\n")
+print(summarystats(y_rouwenhorst), "st_dev:         ", std(y_rouwenhorst), "\nAutocor:        ", cor(y_tauchen[2:1:per], lag(y_rouwenhorst)[2:1:per]))
+
 
 
