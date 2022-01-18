@@ -3,11 +3,12 @@
 
       Carla Srebot
 ========================#
-using Distributions, Random, StatsBase
+
+using Distributions, Random, StatsBase, StatsPlots, DataFrames
 Random.seed!(101)
 
-
-# Question 1 - Tauchen's method 
+# Question 1 - Tauchen's method #
+#################################
 
 ## Defining Tauchen's function
 function tauchen(N::Integer, ρ::Real, σ::Real, m::Integer=3) 
@@ -36,12 +37,13 @@ function tauchen(N::Integer, ρ::Real, σ::Real, m::Integer=3)
 end
 
 
-# Question 2 - Rouwenhorst's method 
+# Question 2 - Rouwenhorst's method #
+#####################################
 function rouwenhorst(p::Real, q::Real, ψ::Real, n::Integer)
     if n == 2
-        return [-ψ, ψ],  [p 1-p; 1-q q]
+        return [ψ, ψ],  [p 1-p; 1-q q]
     else
-        _, θ_nm1 = _rouwenhorst(p, q, ψ, n-1)
+        _, θ_nm1 = rouwenhorst(p, q, ψ, n-1)
         θN = p    *[θ_nm1 zeros(n-1, 1); zeros(1, n)] +
              (1-p)*[zeros(n-1, 1) θ_nm1; zeros(1, n)] +
              q    *[zeros(1, n); zeros(n-1, 1) θ_nm1] +
@@ -49,12 +51,15 @@ function rouwenhorst(p::Real, q::Real, ψ::Real, n::Integer)
 
         θN[2:end-1, :] ./= 2
 
-        return (θN, collect(range(-ψ, stop=ψ, length=n)))
+        return (collect(range(-ψ, stop=ψ, length=n)), θN)
     end
 end
 
 
-# Question 3
+# Question 3, 4, 5 #
+####################
+Random.seed!(101)
+
 per = 1000
 N = 3
 
@@ -62,7 +67,21 @@ N = 3
 σ = 0.4
 
 
-## Tauchen's method 
+## Original equation 
+    y_original = zeros(per)
+    y_original_init = rand(Normal(0, σ))
+
+    # white noise:
+    ϵ = rand(Normal(0, σ), per)
+    
+    y_original[1] = ρ*y_original_init + ϵ[1]
+
+    for col = 2:per
+        y_original[col] =  ρ*y_original[col-1] + ϵ[col]
+    end 
+
+
+    ## Tauchen's method 
     t1 = tauchen(N,ρ,σ)
 
     # random initial value from y_var
@@ -78,9 +97,6 @@ N = 3
         y_tauchen[col] = sample(t1[2], Weights(vec(t1[1][idx, :])))
     end 
 
-    print(y_tauchen)
-
-
 ## Rouwenhorst's method 
     p = (1+ρ)/2
     q = (1+ρ)/2
@@ -90,16 +106,20 @@ N = 3
     
     # random initial value from y_var
     y_rouwenhorst = zeros(per)
-    y_rouwenhorst_init = rand(r1[2])
-    idx_rouwenhorst_init = findall(x->x == y_rouwenhorst_init, r1[2])
+    y_rouwenhorst_init = rand(r1[1])
+    idx_rouwenhorst_init = findall(x->x == y_rouwenhorst_init, r1[1])
 
     # defining Markov process
-    y_rouwenhorst[1] = sample(r1[2], Weights(vec(r1[1][idx_rouwenhorst_init, :])))
+    y_rouwenhorst[1] = sample(r1[1], Weights(vec(r1[2][idx_rouwenhorst_init, :])))
 
     for col = 2:per
-        idx = findall(x->x == y_rouwenhorst[col-1],r1[2])
-        y_rouwenhorst[col] = sample(r1[2], Weights(vec(r1[1][idx, :])))
+        idx = findall(x->x == y_rouwenhorst[col-1],r1[1])
+        y_rouwenhorst[col] = sample(r1[1], Weights(vec(r1[2][idx, :])))
     end 
 
-    print(y_rouwenhorst)
-    
+## Summary Statistics
+describe(y_original)
+describe(y_tauchen)
+describe(y_rouwenhorst)
+
+
